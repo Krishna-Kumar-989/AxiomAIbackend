@@ -1,17 +1,26 @@
-# Use an official lightweight Python image
-FROM python:3.9
+# Use a lightweight Python image as the base
+FROM python:3.9-slim
 
-# Set the working directory in the container
+# Install system dependencies required for OpenCV (libGL)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the backend files into the container
-COPY . .
+# Copy the requirements.txt file into the container
+COPY requirements.txt .
 
-# Install dependencies
+# Install Python dependencies
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the port Flask runs on
+# Copy the rest of the application code into the container
+COPY . .
+
+# Expose the port the app runs on
 EXPOSE 5000
 
-# Start the Flask application
+# Set the entrypoint to run your application
 CMD ["python", "app.py"]
